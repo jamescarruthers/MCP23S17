@@ -92,12 +92,17 @@ class MCP {
     uint8_t digitalRead(uint8_t);            // Reads an individual input pin
     uint8_t byteRead(uint8_t);               // Reads an individual register and returns the byte. Argument is the register address
     unsigned int digitalRead(void);          // Reads all input  pins at once. Be sure it ignore the value of pins configured as output!
+    uint8_t digitalReadBuf(uint8_t);         // Reads a pin from the buffer
+    bool change(void);                       // Return true if the ports have changed since last read
+
   private:
     uint8_t _address;                        // Address of the MCP23S17 in use
     unsigned int _modeCache;                 // Caches the mode (input/output) configuration of I/O pins
     unsigned int _pullupCache;               // Caches the internal pull-up configuration of input pins (values persist across mode changes)
     unsigned int _invertCache;               // Caches the input pin inversion selection (values persist across mode changes)
     unsigned int _outputCache;               // Caches the output pin state of pins
+    unsigned int _value;                     // Caches the 16 bit port information
+    unsigned int _lastValue;                 // Caches the previous 16 bit port information
  };
 		
 #endif //MCP23S17

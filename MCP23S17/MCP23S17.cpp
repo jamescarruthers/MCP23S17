@@ -169,14 +169,15 @@ void MCP::digitalWrite(unsigned int value) {
 // READ FUNCTIONS - BY WORD, BYTE AND BY PIN
 
 unsigned int MCP::digitalRead(void) {       // This function will read all 16 bits of I/O, and return them as a word in the format 0x(portB)(portA)
-  unsigned int value = 0;                   // Initialize a variable to hold the read values to be returned
+  _lastValue = _value;                      // Save the old value for comparison using the change() function
+  _value = 0;                               // Initialize a variable to hold the read values to be returned
   PORTB &= 0b11111011;                      // Direct port manipulation speeds taking Slave Select LOW before SPI action
   SPI.transfer(OPCODER | (_address << 1));  // Send the MCP23S17 opcode, chip address, and read bit
   SPI.transfer(GPIOA);                      // Send the register we want to read
-  value = SPI.transfer(0x00);               // Send any byte, the function will return the read value (register address pointer will auto-increment after write)
-  value |= (SPI.transfer(0x00) << 8);       // Read in the "high byte" (portB) and shift it up to the high location and merge with the "low byte"
+  _value = SPI.transfer(0x00);              // Send any byte, the function will return the read value (register address pointer will auto-increment after write)
+  _value |= (SPI.transfer(0x00) << 8);      // Read in the "high byte" (portB) and shift it up to the high location and merge with the "low byte"
   PORTB |= 0b00000100;                      // Direct port manipulation speeds taking Slave Select HIGH after SPI action
-  return value;                             // Return the constructed word, the format is 0x(portB)(portA)
+  return _value;                            // Return the constructed word, the format is 0x(portB)(portA)
 }
 
 uint8_t MCP::byteRead(uint8_t reg) {        // This function will read a single register, and return it
@@ -192,4 +193,17 @@ uint8_t MCP::byteRead(uint8_t reg) {        // This function will read a single 
 uint8_t MCP::digitalRead(uint8_t pin) {              // Return a single bit value, supply the necessary bit (1-16)
     if (pin < 1 | pin > 16) return 0x0;                  // If the pin value is not valid (1-16) return, do nothing and return
     return digitalRead() & (1 << (pin - 1)) ? HIGH : LOW;  // Call the word reading function, extract HIGH/LOW information from the requested pin
+}
+
+uint8_t MCP::digitalReadBuf(uint8_t pin) {              // Return a single bit value, supply the necessary bit (1-16)
+    if (pin < 1 | pin > 16) return 0x0;                  // If the pin value is not valid (1-16) return, do nothing and return
+    return _value & (1 << (pin - 1)) ? HIGH : LOW;  // Pull in the buffered value, extract HIGH/LOW information from the requested pin
+}
+
+bool MCP::change(void) {
+  if (_value != _lastValue) {               // Compare the new value to the old value
+    return true;
+  } else {
+    return false;
+  }
 }

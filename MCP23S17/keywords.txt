@@ -19,6 +19,8 @@ byteWrite	KEYWORD1
 byteRead	KEYWORD1
 pullupMode	KEYWORD1
 inputInvert	KEYWORD1
+change		KEYWORD1
+digitalReadBuf	KEYWORD1
 
 #######################################
 # Instances (KEYWORD2)
