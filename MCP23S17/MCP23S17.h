@@ -93,7 +93,7 @@ class MCP {
     uint8_t byteRead(uint8_t);               // Reads an individual register and returns the byte. Argument is the register address
     unsigned int digitalRead(void);          // Reads all input  pins at once. Be sure it ignore the value of pins configured as output!
     uint8_t digitalReadBuf(uint8_t);         // Reads a pin from the buffer
-    bool change(void);                       // Return true if the ports have changed since last read
+    bool change(void);                       // Return true if the input ports have changed
 
   private:
     uint8_t _address;                        // Address of the MCP23S17 in use

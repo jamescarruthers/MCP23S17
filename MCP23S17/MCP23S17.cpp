@@ -190,18 +190,20 @@ uint8_t MCP::byteRead(uint8_t reg) {        // This function will read a single 
   return value;                             // Return the constructed word, the format is 0x(register value)
 }
 
-uint8_t MCP::digitalRead(uint8_t pin) {              // Return a single bit value, supply the necessary bit (1-16)
-    if (pin < 1 | pin > 16) return 0x0;                  // If the pin value is not valid (1-16) return, do nothing and return
-    return digitalRead() & (1 << (pin - 1)) ? HIGH : LOW;  // Call the word reading function, extract HIGH/LOW information from the requested pin
+uint8_t MCP::digitalRead(uint8_t pin) {                     // Return a single bit value, supply the necessary bit (1-16)
+    if (pin < 1 | pin > 16) return 0x0;                     // If the pin value is not valid (1-16) return, do nothing and return
+    return digitalRead() & (1 << (pin - 1)) ? HIGH : LOW;   // Call the word reading function, extract HIGH/LOW information from the requested pin
 }
 
-uint8_t MCP::digitalReadBuf(uint8_t pin) {              // Return a single bit value, supply the necessary bit (1-16)
+uint8_t MCP::digitalReadBuf(uint8_t pin) {               // Return a single bit value, supply the necessary bit (1-16)
     if (pin < 1 | pin > 16) return 0x0;                  // If the pin value is not valid (1-16) return, do nothing and return
-    return _value & (1 << (pin - 1)) ? HIGH : LOW;  // Pull in the buffered value, extract HIGH/LOW information from the requested pin
+    return _value & (1 << (pin - 1)) ? HIGH : LOW;       // Pull in the buffered value, extract HIGH/LOW information from the requested pin
 }
 
-bool MCP::change(void) {
-  if (_value != _lastValue) {               // Compare the new value to the old value
+bool MCP::change(void) {                                  // Return true if the buffer has changed
+  unsigned int _mValue = _value & _modeCache;             // Mask out the output ports 
+  unsigned int _mLastValue = _lastValue & _modeCache;
+  if (_mValue != _mLastValue) {                           // Compare the new value to the old value
     return true;
   } else {
     return false;
